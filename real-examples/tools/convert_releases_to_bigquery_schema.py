@@ -2,6 +2,7 @@ import glob
 import json
 import optparse
 import re
+import os
 from datetime import datetime
 
 from jsonschema import Draft3Validator
@@ -430,19 +431,66 @@ def main():
             while has_extra_fields:
                 data, has_extra_fields = remove_extra_fields(
                     data, schema, options.verbose)
-            data = ids_to_string(data)
-            data = fix_date_formats(data)
-            data = fix_uk_issues(data)
-            data = fix_mexico_grupo_issues(data)
-            data = fix_mexico_cdmx_issues(data)
-            data = fix_moldova_issues(data)
-            data = fix_nsw_issues(data)
-            data = fix_nigeria_issues(data)
-            data = fix_montreal_issues(data)
-            data = fix_taiwan_issues(data)
-            data = fix_colombia_issues(data)
+            try:
+                data = ids_to_string(data)
+            except:
+                print("Could not apply ids_to_string")
+
+            try:
+                data = fix_date_formats(data)
+            except:
+                print("Could not apply fix_date_formats")
+
+            try:
+                data = fix_uk_issues(data)
+            except:
+                print("Could not apply ids_to_string")
+            
+            try:
+                data = fix_mexico_grupo_issues(data)
+            except:
+                print("Could not apply fix_mexico_grupo_issues")
+            
+            try:
+                data = fix_mexico_cdmx_issues(data)
+            except:
+                print("Could not apply fix_cdmx_issues")
+            
+            try:
+                data = fix_moldova_issues(data)
+            except:
+                print("Could not apply fix_moldova_issues")
+            
+            try:
+                data = fix_nsw_issues(data)
+            except:
+                print("Could not apply fix_nsw_issues")
+            
+            try:
+                data = fix_nigeria_issues(data)
+            except:
+                print("Could not apply fix_nigeria_issues")
+            
+            try:
+                data = fix_montreal_issues(data)
+            except:
+                print("Could not apply fix_montreal_issues")
+            
+            try:
+                data = fix_taiwan_issues(data)
+            except:
+                print("Could not apply fix_taiwan_issues")
+            
+            try:
+                data = fix_colombia_issues(data)
+            except:
+                print("Could not apply fix_colombia_issues")
+    
         all_data.append(data)
-    with open('all-releases.json', 'w') as writefile:
+
+    directory = "staging/" + options.filepath.replace("../","")
+    os.makedirs(directory, exist_ok=True)
+    with open(directory + 'all.json', 'w') as writefile:
         for d in all_data:
             json.dump(d, writefile)
             writefile.write('\n')
