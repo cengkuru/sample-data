@@ -1,5 +1,4 @@
-from io import BytesIO
-from zipfile import ZipFile
+import csv
 import requests
 import optparse
 import os
@@ -14,7 +13,7 @@ def get_access_token():
     token = ''
     while not correct:
         r = requests.post("https://datos.hacienda.gov.py:443/odmh-api-v1/rest/api/v1/auth/token",
-                          headers={"Authorization": REQUEST_TOKEN}, json='{"clientSecret": "%s"}' % CLIENT_SECRET)
+                          headers={"Authorization": REQUEST_TOKEN}, json={"clientSecret": "%s" % CLIENT_SECRET})
         try:
             token = r.json()['accessToken']
             correct = True
@@ -24,14 +23,23 @@ def get_access_token():
 
 
 def get_tender_ids(year):
-    url = 'https://datos.hacienda.gov.py/odmh-core/rest/cdp/datos/cdp_%s.zip' % year
-    print('Getting url %s' % url)
-    resp = requests.get(url).content
-    zipfile = ZipFile(BytesIO(resp))
+    # url = 'https://datos.hacienda.gov.py/odmh-core/rest/cdp/datos/cdp_%s.zip' % year
+    # print('Getting url %s' % url)
+    # resp = requests.get(url).content
+    # zipfile = ZipFile(BytesIO(resp))
     ids = []
-    for line in zipfile.open('cdp_%s.csv' % year).readlines():
-        print(line)
-    return ids[1:]
+    # for line in zipfile.open('cdp_%s.csv' % year).readlines():
+    #     print(line)
+    with open('/home/yohanna/desarrollo/sample-data/real-examples/paraguay/mh/data/cdp-%s.csv' % year,
+              encoding='ISO 8859-1') as csvfile:
+        line = csv.reader(csvfile, delimiter=',', quotechar='"')
+        i = 0
+        for row in line:
+            id = str(row[20])
+            if id is not '' and i > 0:
+                ids.append(id)
+            i += 1
+    return ids
 
 
 def fetch_release(folder, id, bigquery=False):
@@ -66,7 +74,7 @@ def main():
 
     release_package_ids = []
     if options.all:
-        for year in range(2011, 2012):
+        for year in range(2011, 2018):
             release_package_ids += get_tender_ids(year)
     else:
         release_package_ids += get_tender_ids(options.year)

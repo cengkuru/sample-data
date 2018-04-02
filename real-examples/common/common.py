@@ -1,7 +1,6 @@
 import json
 import os
 import time
-from json import JSONDecodeError
 
 import requests
 
